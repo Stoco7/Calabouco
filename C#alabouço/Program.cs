@@ -15,7 +15,7 @@ namespace C_alabouço
             bool temEspada = false;
             Random dado = new Random();
             List<string> inventario = new List<string>();
-            List<string> inimigos = new List<string> { "Goblin", "Orc", "Esqueleto", "Dragão", "Mímico" };
+            List<string> inimigos = new List<string> { "Goblin", "Orc", "Esqueleto", "Dragão" }; // Mímico removido daqui
 
             Console.WriteLine("Informe seu nome Aventureiro(a). ");
             nome = Console.ReadLine();
@@ -75,9 +75,16 @@ namespace C_alabouço
                             }
                             else if (item == 2)
                             {
-                                Console.WriteLine("Você encontrou uma Espada! Seu dano aumentou.");
-                                temEspada = true;
-                                danoBase += 5;
+                                if (temEspada)
+                                {
+                                    Console.WriteLine("Você já tem uma espada! Não precisa de outra.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Você encontrou uma Espada! Seu dano aumentou.");
+                                    temEspada = true;
+                                    danoBase += 5;
+                                }
                             }
                             else
                             {
@@ -87,9 +94,9 @@ namespace C_alabouço
                         }
                     }
                 }
-                else // Encontrou um inimigo
+                else
                 {
-                    string inimigo = inimigos[dado.Next(inimigos.Count - 1)];
+                    string inimigo = inimigos[dado.Next(inimigos.Count)];
                     int dado_monstro = dado.Next(1, 10);
                     int dado_jogador = dado.Next(1, 8);
                     int dano = Math.Max(0, (Math.Abs(dado_monstro - dado_jogador) * danoBase) - defesa);
