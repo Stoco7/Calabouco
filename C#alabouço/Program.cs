@@ -10,12 +10,14 @@ namespace C_alabouço
     {
         static void Main(string[] args)
         {
-            string nome = "", classe = "", raca = "";
-            string resposta = "";
-            int vida = 100, dado_monstro, dado_jogador;
+            string nome, classe, raca, resposta;
+            int vida = 100, danoBase = 10, defesa = 0;
+            bool temEspada = false;
             Random dado = new Random();
+            List<string> inventario = new List<string>();
+            List<string> inimigos = new List<string> { "Goblin", "Orc", "Esqueleto", "Dragão", "Mímico" };
 
-            Console.WriteLine("Informe seu nome Aventureiro(a).");
+            Console.WriteLine("Informe seu nome Aventureiro(a). ");
             nome = Console.ReadLine();
 
             Console.WriteLine("Informe sua raça.");
@@ -26,73 +28,109 @@ namespace C_alabouço
 
             Console.WriteLine("____________________");
             Console.WriteLine("Ficha: ");
-            Console.WriteLine(nome);
-            Console.WriteLine(classe);
-            Console.WriteLine(raca);
+            Console.WriteLine($"Nome: {nome}\nRaça: {raca}\nClasse: {classe}");
             Console.WriteLine("____________________");
 
-            Console.WriteLine("Deseja entrar na porta a sua esquerda? (S/N)");
-            resposta = Console.ReadLine();
-
-            if (resposta == "S")
+            while (vida > 0)
             {
-                Console.WriteLine("Aqui tem um monstro. Voce vai enfrentá-lo!");
+                Console.WriteLine("Você deseja explorar uma nova sala? (S/N)");
+                resposta = Console.ReadLine().ToUpper();
 
-                dado_monstro = dado.Next(1, 6);
-                dado_jogador = dado.Next(1, 6);
+                if (resposta != "S")
+                    break;
 
-                Console.WriteLine("Monstro: " + dado_monstro + " - Jogador: " + dado_jogador);
-
-                if(dado_monstro >  dado_jogador)
+                int escolha = dado.Next(0, 4);
+                if (escolha == 0) // Encontrou um baú
                 {
-                    Console.WriteLine("Monstro Venceu!");
-                    vida = vida - 50;
+                    Console.WriteLine("Você encontrou um baú! Deseja abrir? (S/N)");
+                    resposta = Console.ReadLine().ToUpper();
+                    if (resposta == "S")
+                    {
+                        int chanceMimico = dado.Next(1, 5);
+                        if (chanceMimico == 1)
+                        {
+                            Console.WriteLine("O baú era um Mímico! Ele te atacou!");
+                            int dado_monstro = dado.Next(1, 10);
+                            int dado_jogador = dado.Next(1, 8);
+                            int dano = Math.Abs(dado_monstro - dado_jogador) * danoBase;
+
+                            Console.WriteLine($"Mímico: {dado_monstro} - Jogador: {dado_jogador}");
+                            if (dado_monstro > dado_jogador)
+                            {
+                                Console.WriteLine("O Mímico venceu! Você recebeu " + dano + " de dano!");
+                                vida = Math.Max(0, vida - dano);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Você derrotou o Mímico!");
+                            }
+                        }
+                        else
+                        {
+                            int item = dado.Next(1, 4);
+                            if (item == 1)
+                            {
+                                Console.WriteLine("Você encontrou uma Poção de Vida!");
+                                inventario.Add("Poção de Vida");
+                            }
+                            else if (item == 2)
+                            {
+                                Console.WriteLine("Você encontrou uma Espada! Seu dano aumentou.");
+                                temEspada = true;
+                                danoBase += 5;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Você encontrou uma Armadura! Sua defesa aumentou.");
+                                defesa += 10;
+                            }
+                        }
+                    }
                 }
-                else
+                else // Encontrou um inimigo
                 {
-                    Console.WriteLine("Jogador Venceu!");
+                    string inimigo = inimigos[dado.Next(inimigos.Count - 1)];
+                    int dado_monstro = dado.Next(1, 10);
+                    int dado_jogador = dado.Next(1, 8);
+                    int dano = Math.Max(0, (Math.Abs(dado_monstro - dado_jogador) * danoBase) - defesa);
+
+                    Console.WriteLine($"Um {inimigo} apareceu!\nMonstro: {dado_monstro} - Jogador: {dado_jogador}");
+
+                    if (dado_monstro > dado_jogador)
+                    {
+                        Console.WriteLine($"O {inimigo} venceu! Você recebeu {dano} de dano!");
+                        vida -= dano;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Você derrotou o {inimigo}!");
+                    }
+                }
+
+                Console.WriteLine("Vida: " + vida);
+
+                if (inventario.Contains("Poção de Vida"))
+                {
+                    Console.WriteLine("Deseja usar uma Poção de Vida? (S/N)");
+                    resposta = Console.ReadLine().ToUpper();
+                    if (resposta == "S")
+                    {
+                        vida += 30;
+                        inventario.Remove("Poção de Vida");
+                        Console.WriteLine("Você usou a Poção e recuperou 30 de vida!");
+                    }
                 }
             }
-            Console.WriteLine("Sua vida é: " + vida);
 
-            Console.WriteLine("Deseja entrar na sala a sua esquerda? (S/N)");
-            resposta = Console.ReadLine();
+            Console.WriteLine("Vida final: " + Math.Max(0, vida));
 
-            if (resposta == "S")
-            {
-                Console.WriteLine("Voce ganhou vida extra!");
-                vida = vida + 30;
-            }
-
-            Console.WriteLine("Sua vida é: " + vida);
-            Console.WriteLine("Mais uma sala, voce deseja entrar na sala? (S/N)");
-            resposta = Console.ReadLine();
-
-            if (resposta == "S")
-            {
-                Console.WriteLine("Eita, monstro grande, logo ele é monstrão!(Birl)");
-                dado_monstro = dado.Next(1, 8);
-                dado_jogador = dado.Next(1, 6);
-
-                if(dado_monstro > dado_jogador)
-                {
-                    Console.WriteLine("Ele te acertou!");
-                    vida = vida - 60;
-                }
-                else
-                {
-                    Console.WriteLine("Voce é o bixão mesmo, matou o monstrão");
-                }
-            }
-
-            Console.WriteLine("Vida " + vida);
             if (vida <= 0)
             {
-                Console.WriteLine("Vacilou, voce morreu...guenta nada...");
+                Console.WriteLine("Vacilou, você morreu!");
             }
             else
             {
-                Console.WriteLine("Continua vivo, merece um abraço...mas não!");
+                Console.WriteLine("Você saiu da masmorra com vida! Parabéns!");
             }
 
             Console.ReadKey();
